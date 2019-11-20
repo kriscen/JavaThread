@@ -1,0 +1,17 @@
+Guarded Suspension模式
+    该模式存在一个持有状态的对象，只有在自身状态合适时，才会允许线程执行目标处理。
+
+Guarded Suspension中的角色
+    GuardedObject-被守护的对象
+        GuardedObject角色是一个持有被守护的方法(guardeMethod)的类。当线程执行guardeMethod方法时，若守护条件成立，则可以立即执行；守护条件不成立时，要进行等待。守护条件的成立与否会随着GuardedObject角色的状态不同而发生变化。
+        GuardedObject角色可能持有其他改变实例状态的方法-stateChangeMethod。
+        guardeMethod通过while和wait实现，stateChangeMethod通过notify/notifyAll实现
+        RequestQueue——GuardedObject
+        getRequest——guardeMethod
+        putRequest——stateChangeMethod
+
+
+
+
+
+

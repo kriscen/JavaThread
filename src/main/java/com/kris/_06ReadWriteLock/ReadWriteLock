@@ -1,0 +1,13 @@
+Read-Write Lock
+
+
+
+登场角色
+    Reader读者
+        Reader角色对SharedResource角色执行read操作
+    Writer写者
+        Writer角色对SharedResource角色执行write操作
+    SharedResource
+        表示Reader和Writer共享资源。内部提供不修改内部状态的操作read和修改内部的操作write。由Data扮演
+    ReadWriteLock
+        ReadWriteLock提供了SharedResource角色实现read操作和write操作时所需的锁。

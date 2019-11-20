@@ -1,0 +1,11 @@
+Java线程的优先级
+    Java的优先级只能在特定的Java平台运行环境中起作用。
+    表示优先级的静态字段
+        1.Thread.MIN_PRIORITY:表示最低优先级的值
+        2.Thread.NORM_PRIORITY:表示默认优先级的值
+        3.Thread.MAX_PRIORITY:表示最高优先级的值
+
+    设置优先级
+        Thread.setPriority
+    获取优先级
+        Thread.getPriority

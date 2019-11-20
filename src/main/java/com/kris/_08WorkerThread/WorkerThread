@@ -1,0 +1,16 @@
+Worker Thread
+    使用Thread-Per-Message模式将发出工作请求的线程与执行工作的线程分开，提高程序响应速度。事先启动执行工作的线程，然后使用Producer-Consumer模式将表示工作内容的实例传递给工作线程。
+
+
+登场角色
+    Client-委托者
+        Client表示工作请求的Request角色并将其传递给Channel角色
+    Channel-通信线路
+        Channel接受来自于Client角色的Request角色，并将其传递给Worker角色
+    Worker-工人
+        Worker角色从Channel角色中获取Requesst角色，并进行工作。当一项工作完成后，会继续去获取另外的Request角色。
+    Request-请求
+        Request表示工作的角色。保存了进行工作所必须的信息。
+
+
+

@@ -1,0 +1,29 @@
+Producer-Consumer
+    生产者安全的将数据交给消费者。在生产者和消费者之间多了一个桥梁角色，该桥梁角色用于消除线程间处理速度的差异。
+    当生产者和消费者都只有一个时，称为Pipe模式
+
+
+登场角色
+    Data
+        由Producer角色生成，供Cpnsumer角色使用。由蛋糕扮演
+    Producer生产者
+        Producer角色生成Data角色，并将其传递给Channel角色。由MakerThread扮演
+    Consumer消费者
+        Consumer角色从Channel角色获取Data角色并使用。由EaterThread扮演
+    Channel通道
+        Channel角色保管从Producer角色获取的Data角色，还会响应Consumer角色的请求。会对Producer角色和Consumer角色的访问执行互斥处理。由Table扮演
+
+
+interrupt方法
+    花费时间的方法
+        1.Object.wait
+        2.Thread.sleep
+        3.Thread.join
+        线程执行这些方法后会需要等待被notify/notifyAll
+    interrupt方法只是改变中断状态
+        interrupt方法只是改变了线程的中断状态。中断状态是一种用于表示线程是否被中断的状态。
+        只有调用到wait、sleep、join等方法，或者没有编写检查线程的状态并抛出InterruptedException异常的代码。
+    isInterrupted-检测中断状态
+        用于检查指定线程的中断状态。线程处于中断状态，返回true，否则返回false。
+    Thread.interrupted-检查并清除中断状态
+        用于检查并清除当前线程的中断状态。只有这个方法可以清除中断状态，只能清除当前线程。

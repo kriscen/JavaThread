@@ -1,0 +1,72 @@
+Active Object
+    委托处理的一方Client角色和执行处理的一方Servant角色，不希望当Servant角色的处理时间很长或是处理被推迟时，Client角色受到影响。并且除了Client角色单向调用Servant角色，还希望实现双向调用(将执行结果从Servant角色返回给Client角色),以及处理的委托顺序与执行顺序的相互独立。
+    ActiveObject模式组成的一个主动对象:
+        接受来自外部的异步请求
+        能够自由地调度请求
+        可以单线程执行实际的处理
+        可以返回执行结果
+        拥有独立的线程
+
+
+登场角色
+    Client-委托者
+        CLient角色调用ActiveObject角色的方法来委托处理，能调用的只有ActiveObject角色提供的方法。调用之后，如果ActivationQueue角色没有满，程序控制权会立即返回。实际调用的是Proxy对象。
+        Client在获取处理结果时，会调用VirtualResult角色的getResultValue方法，使用Future模式。
+        由DisplayClientThread扮演
+    ActiveObject-主动对象
+        定义了主动对象向Client角色提供的接口。
+        由ActiveObject扮演
+    Proxy-代理人
+        Proxy负责将方法调用转换为MethodRequest角色的对象，转换后的MethodRequest会传递给Scheduler。
+        Proxy实现了ActiveObject提供的接口。
+        调用Proxy的方法是Client角色，将方法调用转换为MethodRequest，并传递给Scheduler的操作都是使用Client的线程。
+    Scheduler
+        Scheduler负责将Proxy传递过来的MethodRequest传递给ActivationQueue，以及ActivationQueue取出并执行MethodRequest这两项工作。
+        Client角色的线程负责将MethodRequest传递给ActivationQueue。
+        只有使用Client和Scheduler才会启动新线程。
+        Scheduler会把MethodRequest放入ActivationQueue或者从ActivationQueue取出MethodRequest。因此Scheduler可以判断下次要执行哪个请求。如果想实现请求调度的判断，可以在Scheduler中实现。
+    MethodRequest
+        MethodRequest是与来自Client角色的请求对应的角色。定义了负责执行处理的Servan角色，以及负责设置返回值的Future角色和负责执行请求的方法aexecute。
+        MethodRequest为主动对象的接口赋予了对象的表象形式。
+
+
+    ConcreteMethodRequest
+        ConcreteMethodRequest是使MethodRequest与具体的方法相对应的角色，对于ActiveObject角色中定义的每个方法，会有各个类预支对应。
+        各个ConcreteMethodRequest中的字段分别与方法的参数相对应。
+
+
+    Servant-仆人
+        Servant负责实际地处理请求。调用Servant的是Scheduler的线程。
+        Servant实现了ActiveObject定义的接口。Proxy会将请求转换为MethodRequest，而Servant会实际地执行该请求。
+    ActivationQueue-主动队列
+        ActivationQueue是保存MethodRequest的类。
+        调用putRequest是Client的线程，而调用takeRequest是Scheduler的线程。使用Producer-Consumer模式。
+    VirtualResult-虚拟结果
+        VirtualResult、Future、RealResult共同组成了Future模式
+        client在获取处理结果时会调用VirtualResult的getResultValue方法。
+        由Result扮演
+    Future-期货
+        Future实在Client在获取结果时实际调用的角色，在处理结果没有出来时，会使用GuardedSuspension模式让Client角色的线程等待结果。
+        由FutureResult扮演。
+    RealResult-真实结果
+        RealResult表示处理结果的角色。Servant会创建一个RealResult作为处理结果，然后调用Future的setRealResult将其设置到Future中。
+        由RealResult扮演。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

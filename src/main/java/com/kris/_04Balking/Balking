@@ -1,0 +1,29 @@
+Balking模式
+    如果现在不适合执行这个操作，或者没必要执行，就停止处理直接返回。
+
+
+Balking角色
+    GuardedObject
+        GuardedObject角色是一个拥有被防护的方法(GuardedMethod)的类。当线程执行GuardedMethod方法时，若守护条件成立，则执行实际的处理。当守护条件不成立，则不执行实际的处理，直接返回。
+        GuardedObject还可能有其他方法改变状态，stateChangingMethod
+        Data扮演此角色，save方法对应guardeMethod，change方法对应stateChangingMethod
+
+何时使用
+    1.并不需要执行时
+    2.不需要等待守护条件成立时
+    3.守护条件仅在第一次成立时
+
+balk结果的表示方式
+    从GuardedMethod方法中balk并返回，balk结果有一下情况
+    1.忽略balk
+        不通知调用端发生了balk
+    2.通过返回值表示balk
+        通过boolean类型的值表示balk
+    3.通过异常表示balk的发生
+
+
+
+
+
+
+

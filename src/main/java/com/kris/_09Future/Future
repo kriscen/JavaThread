@@ -1,0 +1,17 @@
+Future
+    编写一个表示处理结果的RealData角色以及具有相同接口的Future角色。接着，在处理开始时先返回Future角色，等到其他线程处理终止后，在将结构设置到Future角色中。Clinet角色就可以使用Future角色获取处理结果。
+    使用该模式可以在不降低响应性的前提下获取处理结果。
+
+登场角色
+    Client-请求者
+        向Host角色发出请求，并会立即接收到请求的处理结果-VirtualData角色
+        收到的VirtualData角色实际上是Future角色。Client角色不需要知道返回值究竟是RealData还是VirtualData。
+    Host
+        Host角色会创建新的线程，并开始在新线程中创建RealData角色。同时，会将Future角色返回给Client角色。
+        新线程在创建了RealData角色后，会将其设置到Future角色中。
+    VirtualData-虚拟数据
+        VirtualData角色是让Future角色和RealData角色具有一致性的角色。
+    RealData-真实数据
+        RealData角色是表示真实数据的角色，创建该对象需要花费很多时间。
+    Future-期货
+        Future角色是RealData角色的提货单。由Host角色传递给Client角色。当Client角色操作Future角色时，线程会调用wait方法等待，直到RealData角色创建完成。但是一旦RealData创建完成，线程就不会继续等待。Future角色会将Client角色的操作委托给RealData角色。

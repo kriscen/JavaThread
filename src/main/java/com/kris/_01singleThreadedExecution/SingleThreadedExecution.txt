@@ -1,0 +1,37 @@
+Single Threaded Execution模式
+
+Single Threaded Execution中出现一个发挥ShareReasource共享资源的作用类，示例中由Gate类扮演
+
+ShareResource角色是可以被多个线程访问的类，包含很多方法，主要分为两类：
+    safeMethod:多线程同时调用也不会发生问题的方法
+    unsafeMethod:多线程同时调用会发生问题，因此必须加以保护的方法
+
+Single Threaded Execution模式会保护unsafeMethid方法，使其同时只能由一个线程访问，Java将unsafeMethod方法通过synchronized方法进行保护
+
+只允许单个线程执行的程序范围称为临界区
+
+
+
+可使用Single Threaded Execution模式的情况
+    1.多线程时
+    2.多个线程访问时
+    3.状态可能发生改变时
+    4.需要确保安全性时
+
+
+Single Threaded Execution死锁发生的情况
+    1.存在多个shareResource角色
+    2.线程在持有某个ShareResource角色锁的同时，还想获取其他ShareResource角色的锁
+    3.获取ShareResource角色的锁顺序不固定
+
+临界区大小和性能
+    Single Threaded Execution会降低程序性能
+    1.获取锁花费时间
+    2.线程冲突引起的等待
+
+
+long和double的操作
+    1.基本类型、引用类型的赋值和引用是原子操作
+    2.long和double的赋值和引用是非原子操作
+    3.long或double在线程间共享时，需要将其放入synchronized中操作，或声明为volatile
+

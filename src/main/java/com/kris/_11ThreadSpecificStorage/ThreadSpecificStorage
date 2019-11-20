@@ -1,0 +1,28 @@
+Thread-Specific Storage
+
+ThreadLocal
+    ThreadLocal会管理多个对象，定义了可以存储和获取对象的方法。
+    set方法
+        set方法将通过参数接受的实例与调用该方法的线程(当前线程)对应并存储起来。这里存储的对象可以通过get方法获取。set方法中没有表示线程的参数。set方法会先调查当前线程(Thread.currentThread()的值)，然后把它作为key来存储实例。
+    get方法
+        get方法用于获取与调用get方法的线程对应的实例。该线程之前通过set方法存储的实例就是get方法的返回值。如果之前一次都没有调用过set方法，则get返回的值为Null。
+
+
+登场角色
+    Client-委托者
+        Client角色将处理委托给TSObjectProxy角色。一个TSObjectProxy角色会被多个CLient角色使用。由CLientThread扮演
+    TSObejctProxy-线程特有的对象的代理人
+        TSObjectProxy角色会执行多个Client角色委托给它的处理。首先该角色使用TSObjectCollection角色获取与Client角色对应的TSobject角色。接着，它将处理未果给TSObject角色。由Log扮演
+    TSObjectCollection-线程特有的对象的集合
+        TSObjectCollection角色有一张Client角色和TSObject角色之间的对应表。当getTSObject方法被调用之后，回去查看对应表，返回与Client角色对应的TSObject角色。当setTSObject方法被调用后，会将Client角色和TSObject角色之间的键值对应关系设置到对应表中。由ThreadLocal扮演
+    TSObject-线程特有的对象
+        TSObject角色中保存着线程特有的信息。
+        TSObject角色由TSObjectCollection角色管理。TSObject角色的方法只会被单线程调用。由TSLog扮演
+
+
+
+两种方式
+    基于角色的考虑方式-线程最伟大
+        基于角色的方式在表示线程的实例中保存进行工作所必须的信息(上下文，状态)。这样可以减少和减轻线程之间的交互信息量。一个线程会使用其他线程接受到的信息来执行处理，改变自己的内部状态。称这样的线程为角色。
+    基于任务的考虑方式-任务最伟大
+        基于任务的方式不再线程中保存信息(上下文，状态)。在这种方式下，这些信息不保存在线程中，而是保存在线程之间交互的实例中。而且不仅是数据，连用于执行请求的方法都定义在其中。这样在线程之间交互的实例称为消息，请求，命令。由于任务中保存了足够的信息，所以任何线程执行该任务都没有问题。这是一种富任务往来于轻线程之间的方式。

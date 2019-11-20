@@ -1,0 +1,22 @@
+Thread-Per-Message
+
+
+登场角色
+    Client委托人
+        Client角色会向Host角色发送请求，并不知道Hsot角色是如何实现请求的。由main扮演。
+    Host
+        Host角色受到Client角色的请求后，会新创建并启动一个线程。新创建的线程将使用Helper角色处理handle请求。
+    Helper助手
+        Helper角色为Host角色提供请求处理的功能。Host角色创建的新线程会利用Helper角色。由Helper扮演。
+
+拓展思路
+    提升响应性，缩短延迟时间
+    适用于操作顺序没有要求
+    适用于不需要返回值
+    应用于服务器
+
+
+进程和线程
+    线程之间共享内存
+    线程的上下文切换快
+

@@ -1,0 +1,106 @@
+重排序
+    编译器和Java虚拟机通过改变程序的处理顺序来优化程序。
+
+可见性
+    假设线程A将某个值写入字段x中，而线程B读取到了该值，称之为线程A向x的写值对线程B是可见的。
+    在多线程中，如果没有使用synchronized或volatile正确同步，线程A写入到字段中的值可能不会立即对线程B可见。
+
+共享内存与操作
+    共享内存
+        所有线程共享的存储空间，称为堆内存。因为所有实例被全部保存在共享内存中，所以实例中的字段也存在共享内存中。此外数组的元素也被保存在共享内存中。也就是可以使用new在共享内存中分配存储空间。
+        局部变量不会被保存在共享内存中。除局部变量外，方法的形参、catch语句块中编写的异常处理器的参数等也不会被保存在共享内存中，而是被保存在各个线程特有的栈中，所以其他线程不会访问他们。
+        - 1.normal read操作
+        - 2.normal write操作
+        - 3.volatile read操作
+        - 4.volatile write操作
+        - 5.lock操作
+        - 6.unlock操作
+        3-6的操作是进行同步的同步操作。进行同步的操作具有防止重排序，控制可见性的效果。
+        normal read/normal write操作表示对普通字段(除了volatile外的字段)的读写。这些操作可以通过缓存来执行。因此normal read读取到的值不一定是最新的值，normal write写入的值不一定会立即对其他线程可见。
+        volatile read/volatile write操作表示的是对volatile字段的读写。由于这些操作不是通过缓存执行的，所以通过volatile read读取到的一定是最新的值，通过volatile write写入的值也会立即对其他线程可见。
+        lock/unlock操作是当线程中使用了synchronized关键字进行互斥处理的操作。lock操作可以获取实例的说，unlock可以释放实例的锁。
+        缓存：这里不仅仅是CPU缓存，还包括寄存器以及Java虚拟机临时保存的变量。
+
+synchronized
+    synchronized具有线程互斥处理和同步处理两种功能。
+    线程的互斥处理
+        如果程序中有synchronized关键字，线程会进行lock/unlock操作。线程会在synchronized开始时获取锁，终止时释放锁。
+        当线程在wait方法内部等待的时候也会释放锁。此外，线程从wait方法中出来的时候必须重新获取锁才可以继续运行。
+        只有一个线程能获取某个实例的锁，如果线程A准备获取锁，但是已经被其他线程获取，线程A会进入等待队列，形成线程的互斥。
+    同步处理
+        Java内存模型确保了某个线程在进行unlock M操作前进行的所有写入操作对进行lock M操作的线程都是可见的。
+
+volatile
+    volatile具有同步处理和对long和double的原子操作两种功能。
+    同步处理
+        某个线程对volatile字段进行的写操作的结果对其他线程立即可见。即对volatile字段的写入处理不会被缓存起来。
+        volatile字段多被用作判断实例是否变为特定状态的标志。
+        - volatile字段的肤质语句位置很重要，需要写在normal write后边
+        - volatile不会进行线程的互斥处理，访问volatile字段不会进入等待队列
+        - volatile字段会产生性能开销
+    对long和double的原子操作
+        JUC.atomic包中是volatile字段的一种通用化形式。
+
+final
+    使用final关键字声明的字段只能被初始化一次。final字段在创建不允许被改变的对象时起到了非常重要的作用。
+    final字段的初始化只能在字段声明时或者构造函数中。那么当final字段的初始化结束后，无论在任何时候，他的值对其他线程都是可见的。Java内存模型可以确保被初始化后的final字段在构造函数处理结束后是可见的。
+        - 如果构造函数的处理结束了
+        - final字段初始化后的值对所有线程可见
+        - 在final字段可以追溯到所有范围内都可以看到正确的值
+        - 在构造函数的处理结束前
+        - 可能会看到final字段的值是默认的初始值(0,false或null)
+    concurrnetHashMap使用final和volatile实现了无阻塞的Map
+
+    注意：
+        1.将常量字段设置为final
+        2.不要从构造函数中泄露this
+
+
+Double-Checked-Locking
+    实现一个单例
+        1.Single Threaded Execution
+        public class MySystem{
+            private static MySystem instance = null;
+            private MySystem(){}
+            public static synchronized MySystem getInstance(){
+                if(instance == null){
+                    instance = new MySystem();
+                }
+                return instance;
+            }
+        }
+        2.Double-Checked Locking
+        为了改善1中的synchronized的性能问题，但是有危险性。
+        public class MySystem{
+            private static MySystem instance = null;
+            private Date date = new Date();
+            private MySystem(){}
+            public Dtae getDate(){
+                return date;
+            }
+            public static MySystem getInstance(){
+                if(instance == null){                       (a)第一次test
+                    synchronized(MySystem.class){           (b)进入synchronized代码块
+                        if(instance == null){               (c)第二次test
+                          instance = new MySystem();        (d)set
+                        }
+                    }                                       (e)从synchronized代码块中退出
+                }
+                return instance;                            (f)
+            }
+        }
+
+        (1).在new MySystem()创建实例时，new Date()会赋值给date。如果线程A从synchronized代码块退出后，线程B才进入synchronized代码块，那么线程B也可以看见data的值。但是在D阶段，无法确保线程B可以看见线程A写入的date字段的值。
+        (2).线程B在a阶段判断是instance ！= null，因此不会进入synchronized代码块，而是立即返回instance。之后直接调用getDate()方法，因此线程B会引用date字段的值。但是线程A如果还没有从synchronized代码块中退出，线程B也没有进入synchronized代码块，因此无法确保date字段的值是对线程B可见。
+
+        3.Initialization On Demand Holder模式
+        public class MySystem{
+            private static class Holder{
+                public static Mysystem instance = new MySystem();
+            }
+            private MySystem(){}
+            public static synchronized MySystem getInstance(){
+                return Holder.instance;
+            }
+        }
+       Holder类的初始化在线程刚刚要使用该类的时候才会进行，避免内存浪费。

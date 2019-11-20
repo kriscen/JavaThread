@@ -1,0 +1,25 @@
+Immutable模式
+    当一个类的实例创建完成后，其状态就完全不会发生变化。该类的方法就算被多个线程同时执行也没关系，所以这些方法无需声明为synchrnized。这样就可以在安全性和生存性都不丧失的同时提高性能。
+
+Immutable角色
+    Immutable
+        Immutable角色是一个类，在这个角色中字段值不可修改，也不存在修改字段方法，创建后角色状态不会发生变化。
+        如Person类
+
+
+ 何时使用
+    1.实例创建后，状态不在发生变化时
+    2.实例是共享的，且被频繁访问时
+
+
+性能——成对的mutable类和inmutable类
+    例如String，StringBuffer可以相互转换
+
+可复用性——为了确保不可变性
+
+标准类库
+    1.String
+    2.BigInteger
+    3.Pattern
+    4.Integer
+    5.Color
